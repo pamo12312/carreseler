@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const CarMakes = () => {
     const [carMakeName, setCarMakeName] = useState('');
@@ -24,16 +24,11 @@ const CarMakes = () => {
             .then(data => {
                 console.log('API Response:', data);
                 if (data && data.records) {
-                    const carMakeRecords = data.records.filter(record =>
-                        record.make && record.make.toLowerCase() === carMakeName.toLowerCase()
+                    const filteredCarMakes = data.records.filter(record =>
+                        record.make && record.make.toLowerCase().includes(carMakeName.toLowerCase())
                     );
-                    if (carMakeRecords.length > 0) {
-                        setCarMakes(carMakeRecords);
-                        setError('');
-                    } else {
-                        setCarMakes([]);
-                        setError('No cars found for this make');
-                    }
+                    setCarMakes(filteredCarMakes);
+                    setError('');
                 } else {
                     setCarMakes([]);
                     setError('No records found');
@@ -46,6 +41,14 @@ const CarMakes = () => {
             });
     };
 
+    const handleSubmit = () => {
+        fetchCarMakes();
+    };
+
+    useEffect(() => {
+        fetchCarMakes();
+    }, []); // runs once after initial render
+
     return (
         <div>
             <h1>Find Cars by Make</h1>
@@ -55,14 +58,9 @@ const CarMakes = () => {
                 onChange={handleInputChange}
                 placeholder="Enter Make Name"
             />
-
-            <button onClick={fetchCarMakes}>Fetch Car Makes</button>
+            <button onClick={handleSubmit}>Search</button>
 
             {error && <p>{error}</p>}
-
-
-
-
 
             {carMakes.length > 0 && (
                 <div>
@@ -73,9 +71,9 @@ const CarMakes = () => {
                             <p><strong>Year:</strong> {car.year}</p>
                             <p><strong>Make:</strong> {car.make}</p>
                             <p><strong>Model:</strong> {car.model}</p>
-                            <p><strong>Model:</strong> {car.price}</p>
-                            <p><strong>Nájezd:</strong> {car.mileage}</p>
-                            <p><strong>Město:</strong> {car.city}</p>
+                            <p><strong>Price:</strong> {car.price}</p>
+                            <p><strong>Mileage:</strong> {car.mileage}</p>
+                            <p><strong>City:</strong> {car.city}</p>
                             <img src={car.photoUrls[0]} alt={`Car ${car.id}`}/>
                             <hr/>
                         </div>
